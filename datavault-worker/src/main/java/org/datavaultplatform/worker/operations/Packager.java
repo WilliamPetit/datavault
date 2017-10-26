@@ -27,6 +27,7 @@ public class Packager {
 
         BagFactory bagFactory = new BagFactory();
         PreBag preBag = bagFactory.createPreBag(dir);
+//        PreBag datavaultPreBag = new DatavaultPreBagImpl( preBag , bagFactory );
         Bag bag = preBag.makeBagInPlace(BagFactory.LATEST, false);
         
         boolean result = false;

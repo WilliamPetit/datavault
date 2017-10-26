@@ -62,7 +62,7 @@ public class Deposit extends Task {
         depositId = properties.get("depositId");
         bagID = properties.get("bagId");
         userID = properties.get("userId");
-        
+
         if (this.isRedeliver()) {
             eventStream.send(new Error(jobID, depositId, "Deposit stopped: the message had been redelivered, please investigate")
                 .withUserId(userID));
@@ -88,8 +88,6 @@ public class Deposit extends Task {
         eventStream.send(new Start(jobID, depositId)
             .withUserId(userID)
             .withNextState(0));
-        
-        logger.info("bagID: " + bagID);
         
         userStores = new HashMap<>();
         
@@ -182,6 +180,9 @@ public class Deposit extends Task {
         File bagDir = bagPath.toFile();
         bagDir.mkdir();
         
+                logger.debug("bagPath: "+bagPath.toString());
+                logger.debug("bagFile: "+bagDir.getPath());
+                
         Long depositIndex = 0L;
         
         for (String filePath: fileStorePaths) {
@@ -241,7 +242,7 @@ public class Deposit extends Task {
 
             logger.info("Creating bag ...");
             Packager.createBag(bagDir);
-
+            
             // Identify the deposit file types
             logger.info("Identifying file types ...");
             Path bagDataPath = bagDir.toPath().resolve("data");
@@ -261,6 +262,8 @@ public class Deposit extends Task {
             String tarHash = Verify.getDigest(tarFile);
             String tarHashAlgorithm = Verify.getAlgorithm();
 
+            logger.info("Tar created: "+tarFile);
+            
             eventStream.send(new PackageComplete(jobID, depositId)
                 .withUserId(userID)
                 .withNextState(3));
@@ -288,7 +291,7 @@ public class Deposit extends Task {
 
             // Cleanup
             logger.info("Cleaning up ...");
-            FileUtils.deleteDirectory(bagDir);
+//            FileUtils.deleteDirectory(bagDir);
 
             eventStream.send(new UpdateProgress(jobID, depositId)
                 .withUserId(userID)
@@ -413,7 +416,7 @@ public class Deposit extends Task {
                 alreadyVerified = true;
 
                 // Delete the existing temporary file
-                tarFile.delete();
+//                tarFile.delete();
 
                 // Copy file back from the archive storage
                 copyBackFromArchive(archiveStore, archiveId, tarFile);
@@ -454,8 +457,8 @@ public class Deposit extends Task {
         }
         
         // Cleanup
-        logger.info("Cleaning up ...");
-        FileUtils.deleteDirectory(bagDir);
-        tarFile.delete();
+//        logger.info("Cleaning up ...");
+//        FileUtils.deleteDirectory(bagDir);
+//        tarFile.delete();
     }
 }
